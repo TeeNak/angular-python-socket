@@ -4,14 +4,37 @@ import { Socket } from 'ngx-socket-io';
 
 import { Document } from '../models/document';
 
+import { Subject, Observer } from 'rxjs';
+
+
+
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
   currentDocument = this.socket.fromEvent<Document>('document');
-  documents = this.socket.fromEvent<string[]>('documents');
+  //documents = this.socket.fromEvent<string[]>('documents');
+    
+  subject = new Subject<string[]>();
+  documents = this.subject;
 
-  constructor(private socket: Socket) { }
+  constructor(private socket: Socket) { 
+
+    this.socket.fromEvent<string[]>('documents').subscribe({
+      next: (value) => {
+        this.subject.next(value);
+      },
+      error: (err: any) => {
+        this.subject.error(err);
+      },
+      complete: () => {
+        this.subject.complete();
+      }
+    });
+
+  }
 
   getDocument(id: string) {
     this.socket.emit('getDoc', id);
