@@ -7,6 +7,10 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, \
 import ptvsd
 ptvsd.enable_attach(address=('0.0.0.0',5678))
 
+print('wait for attatch')
+ptvsd.wait_for_attach()
+print('attatched')
+
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -28,11 +32,6 @@ documents = {
 @app.route('/')
 def index():
     return "hello"
-
-
-print('wait for attatch')
-ptvsd.wait_for_attach()
-print('attatched')
 
 previousId: str = None
 
@@ -63,25 +62,22 @@ def getDoc(docId):
 
 @socketio.on('addDoc')
 def addDoc(doc):
-    global documents 
-    documents[doc.id] = doc
-    safeJoin(doc.id)
-    socketio.emit('documents', list(documents.keys()))
-    socketio.emit('document', doc)
+    global documents
+    id = doc['id'] 
+    documents[id] = doc
+    emit('documents', list(documents.keys()))
+    emit('document', doc)
+    safeJoin(id)
 
 @socketio.on('editDoc')
 def editDoc(doc):
     global documents
-    documents[doc.id] = doc
-    # socketio.to(doc.id).emit('document', doc)
-    socketio.emit('document', doc)
-
-
-
-
+    id = doc['id']
+    documents[id] = doc
+    # socketio.to(id).emit('document', doc)
+    emit('document', doc)
 
 
 if __name__ == '__main__':
     # socketio.run(app, debug=True, host='0.0.0.0', port=4444)
-    # for ptvsd debug
-    socketio.run(app, debug=False, use_reloader=False, host='0.0.0.0', port=4444)
+    socketio.run(app, debug=False, use_reloader=False, host='0.0.0.0', port=4444) # for ptvsd debug enabled
