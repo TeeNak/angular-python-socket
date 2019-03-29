@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { DocumentListComponent } from './components/document-list/document-list.component';
 import { DocumentComponent } from './components/document/document.component';
 
-const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
+const config: SocketIoConfig = { url: `http://${window.location.hostname}:4444`, options: {} };
 
 @NgModule({
   declarations: [

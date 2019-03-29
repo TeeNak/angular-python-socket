@@ -4,12 +4,12 @@ from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 
-import ptvsd
-ptvsd.enable_attach(address=('0.0.0.0',5678))
+# import ptvsd
+# ptvsd.enable_attach(address=('0.0.0.0',5678))
 
-print('wait for attatch')
-ptvsd.wait_for_attach()
-print('attatched')
+# print('wait for attatch')
+# ptvsd.wait_for_attach()
+# print('attatched')
 
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -77,7 +77,9 @@ def editDoc(doc):
     # socketio.to(id).emit('document', doc)
     emit('document', doc)
 
+port = 4444
+print(f'starting app on port {port}')
 
 if __name__ == '__main__':
-    # socketio.run(app, debug=True, host='0.0.0.0', port=4444)
-    socketio.run(app, debug=False, use_reloader=False, host='0.0.0.0', port=4444) # for ptvsd debug enabled
+    # socketio.run(app, debug=True, host='0.0.0.0', port=port)
+    socketio.run(app, debug=False, use_reloader=False, host='0.0.0.0', port=port) # for ptvsd debug enabled
