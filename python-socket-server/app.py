@@ -65,9 +65,9 @@ def addDoc(doc):
     global documents
     id = doc['id'] 
     documents[id] = doc
-    emit('documents', list(documents.keys()))
-    emit('document', doc)
     safeJoin(id)
+    emit('documents', list(documents.keys()), broadcast=True)
+    emit('document', doc)
 
 @socketio.on('editDoc')
 def editDoc(doc):
