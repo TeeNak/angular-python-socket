@@ -38,8 +38,7 @@ previousId: str = None
 @socketio.on('connect')
 def test_connect(**args):
     emit('documents', list(documents.keys()))
-    print(f'Socket {socketio.server} has connected')
-    print(f'sid {request.sid}')
+    print(f'Socket {request.sid} has connected')
 
 
 @socketio.on('disconnect')
@@ -48,9 +47,13 @@ def test_disconnect():
 
 def safeJoin(currentId: str):
     global previousId
-    if previousId is None:
+    print(f'Previous ID is {previousId}')
+    if previousId is not None:
         leave_room(previousId)
-    join_room(currentId, lambda _: print(f'Socket {request.sid} joined room {currentId}'))
+        print(f'Socket {request.sid} left room {previousId}')
+
+    join_room(currentId)
+    print(f'Socket {request.sid} joined room {currentId}')
     previousId = currentId
 
 @socketio.on('getDoc')
@@ -74,8 +77,7 @@ def editDoc(doc):
     global documents
     id = doc['id']
     documents[id] = doc
-    # socketio.to(id).emit('document', doc)
-    emit('document', doc)
+    emit('document', doc, room=id)
 
 port = 4444
 print(f'starting app on port {port}')
