@@ -7,6 +7,7 @@ const documents = {};
 io.on('connection', socket => {
     let previousId;
     const safeJoin = currentId => {
+        console.log(`Socket ${socket.id} leaving room ${previousId}`);
         socket.leave(previousId);
         socket.join(currentId, () => console.log(`Socket ${socket.id} joined room ${currentId}`));
         previousId = currentId;
