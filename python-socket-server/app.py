@@ -33,51 +33,53 @@ documents = {
 def index():
     return "hello"
 
-previousId: str = None
-
 @socketio.on('connect')
-def test_connect(**args):
+def socket_connect(**args):
+
+    previousId: str = None
+    print(f'Previous ID is {previousId}')
+
+    def safeJoin(currentId: str):
+        nonlocal previousId
+
+        print(f'Previous ID is {previousId}')
+        if previousId is not None:
+            leave_room(previousId)
+            print(f'Socket {request.sid} left room {previousId}')
+
+        join_room(currentId)
+        print(f'Socket {request.sid} joined room {currentId}')
+        previousId = currentId
+
+    @socketio.on('getDoc')
+    def getDoc(docId):
+        global documents 
+        safeJoin(docId)
+        doc = documents.get(docId)
+        emit('document', doc)
+
+    @socketio.on('addDoc')
+    def addDoc(doc):
+        global documents
+        id = doc['id'] 
+        documents[id] = doc
+        safeJoin(id)
+        emit('documents', list(documents.keys()), broadcast=True)
+        emit('document', doc)
+
+    @socketio.on('editDoc')
+    def editDoc(doc):
+        global documents
+        id = doc['id']
+        documents[id] = doc
+        emit('document', doc, room=id)
+
     emit('documents', list(documents.keys()))
     print(f'Socket {request.sid} has connected')
 
-
 @socketio.on('disconnect')
-def test_disconnect():
+def socket_disconnect():
     print('Client disconnected', request.sid)
-
-def safeJoin(currentId: str):
-    global previousId
-    print(f'Previous ID is {previousId}')
-    if previousId is not None:
-        leave_room(previousId)
-        print(f'Socket {request.sid} left room {previousId}')
-
-    join_room(currentId)
-    print(f'Socket {request.sid} joined room {currentId}')
-    previousId = currentId
-
-@socketio.on('getDoc')
-def getDoc(docId):
-    global documents 
-    safeJoin(docId)
-    doc = documents.get(docId)
-    emit('document', doc)
-
-@socketio.on('addDoc')
-def addDoc(doc):
-    global documents
-    id = doc['id'] 
-    documents[id] = doc
-    safeJoin(id)
-    emit('documents', list(documents.keys()), broadcast=True)
-    emit('document', doc)
-
-@socketio.on('editDoc')
-def editDoc(doc):
-    global documents
-    id = doc['id']
-    documents[id] = doc
-    emit('document', doc, room=id)
 
 port = 4444
 print(f'starting app on port {port}')
