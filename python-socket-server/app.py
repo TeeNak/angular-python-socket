@@ -51,12 +51,18 @@ def socket_connect(**args):
         print(f'Socket {request.sid} joined room {currentId}')
         previousId = currentId
 
+    print(f'Created safeJoin(). id is {id(safeJoin)}') 
+
     @socketio.on('getDoc')
     def getDoc(docId):
-        global documents 
+        global documents
+        print(f'Running getDoc(). id is {id(getDoc)}') 
+        print(f'Id of safeJoin() is {id(safeJoin)}') 
         safeJoin(docId)
         doc = documents.get(docId)
         emit('document', doc)
+    
+    print(f'Created getDoc(). id is {id(getDoc)}') 
 
     @socketio.on('addDoc')
     def addDoc(doc):
